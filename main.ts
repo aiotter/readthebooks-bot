@@ -59,7 +59,8 @@ async function home(request: Request) {
   // It implies that a user has issued a command.
   if (type === 2) {
     const { value } = data.options.find((option) => option.name === "role");
-    if (roles.map((role) => role.id).includes(value)) {
+    const role = roles.find(role => role.id === value);
+    if (role) {
       const memberId = member!.user.id;
       const headers = {
         "Content-Type": "application/json",
@@ -72,14 +73,14 @@ async function home(request: Request) {
           `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${value}`,
           { method: "DELETE", headers },
         );
-        return json({ type: 4, data: { content: "役職を取り外しました" } });
+        return json({ type: 4, data: { content: `「${role.name}」を取り外しました` } });
       } else {
         // Add role
         await fetch(
           `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${value}`,
           { method: "PUT", headers },
         );
-        return json({ type: 4, data: { content: "役職を追加しました" } });
+        return json({ type: 4, data: { content: `「${role.name}」を追加しました` } });
       }
     }
     return json({
