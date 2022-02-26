@@ -7,12 +7,14 @@ on:
 
 jobs:
   register-commmands:
-    - uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-    - uses: denoland/setup-deno@v1
-      with:
-        deno-version: v1.19.x
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.19.x
 
-    - run: deno run --allow-env --allow-net register-command.ts
-      env:
-        TOKEN: ${{ secrets.TOKEN }}
+      - run: deno run --allow-env --allow-net register-command.ts
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
