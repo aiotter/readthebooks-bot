@@ -12,7 +12,7 @@ async function registerCommand() {
     name: "role",
     description: "役職を追加する/取り外す",
     options: [
-      { type: 8, name: "role", description: "付与する役職", required: true },
+      { type: 8, name: "role", description: "追加/削除する役職", required: true },
     ],
   }];
 
