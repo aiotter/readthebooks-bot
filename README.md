@@ -11,5 +11,4 @@
 ## 実装メモ
 実行環境は Deno Deploy です。
 エンドポイントは `main.ts` です。
-新しいコマンドを実装した際には `register-command.ts` を実行します（CIに仕込みたい）。
 Bot の token を TOKEN 環境変数に格納してください。
