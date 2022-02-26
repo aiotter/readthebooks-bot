@@ -3,7 +3,9 @@ name: Register commands
 on:
   push:
     branches: [master]
-    paths: [register-commands.ts]
+    paths:
+      - register-commands.ts
+      - .github/workflows/register-commands.yml
 
 jobs:
   register-commmands:
