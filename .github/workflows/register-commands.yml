@@ -17,6 +17,6 @@ jobs:
         with:
           deno-version: v1.19.x
 
-      - run: deno run --allow-env --allow-net register-command.ts
+      - run: deno run --allow-env --allow-net register-commands.ts
         env:
           TOKEN: ${{ secrets.TOKEN }}
