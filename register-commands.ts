@@ -1,22 +1,11 @@
 import config from "./bot-config.json" assert { type: "json" };
+import commands from "./commands.json" assert { type: "json" };
 
 const TOKEN = Deno.env.get("TOKEN");
 
-interface Role {
-  name: string;
-  id: string;
-}
-
-async function registerCommand() {
-  const commands = [{
-    name: "role",
-    description: "役職を追加する/取り外す",
-    options: [
-      { type: 8, name: "role", description: "追加/削除する役職", required: true },
-    ],
-  }];
-
-  const response = await fetch(
+function registerCommand() {
+  const error = new Error();
+  fetch(
     `https://discord.com/api/v9/applications/${config.applicationId}/guilds/${config.guildId}/commands`,
     {
       method: "PUT",
@@ -26,8 +15,14 @@ async function registerCommand() {
         Authorization: `Bot ${TOKEN}`,
       },
     },
-  );
-  console.log(response, await response.text());
+  ).then(async (response) => {
+    if (!response.ok) {
+      error.name = `${response.status} ${response.statusText}`;
+      error.message = await response.text();
+      throw error;
+    }
+    console.log(await response.json());
+  });
 }
 
 if (import.meta.main) {
