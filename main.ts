@@ -1,7 +1,83 @@
+import {
+  APIApplicationCommandInteraction,
+  APIApplicationCommandInteractionDataRoleOption,
+  APIInteraction,
+  APIInteractionResponse,
+  APIInteractionResponseChannelMessageWithSource,
+  APIInteractionResponsePong,
+  APIPingInteraction,
+  InteractionResponseType,
+  InteractionType,
+} from "https://deno.land/x/discord_api_types@0.27.3/v9.ts";
 import config from "./bot-config.json" assert { type: "json" };
 import roles from "./roles.json" assert { type: "json" };
 
 const TOKEN = Deno.env.get("TOKEN");
+
+async function interact(
+  interaction: APIPingInteraction,
+): Promise<APIInteractionResponsePong>;
+
+async function interact(
+  interaction: APIApplicationCommandInteraction,
+): Promise<APIInteractionResponseChannelMessageWithSource>;
+
+async function interact(
+  interaction: APIInteraction,
+): Promise<APIInteractionResponse | void> {
+  if (interaction.type === InteractionType.Ping) {
+    return {
+      type: InteractionResponseType.Pong,
+    };
+  }
+
+  if (
+    interaction.type === InteractionType.ApplicationCommand &&
+    !("target_id" in interaction.data)
+  ) {
+    const option = interaction.data.options
+      ?.find((option) =>
+        option.name === "role"
+      ) as APIApplicationCommandInteractionDataRoleOption;
+
+    const role = roles.find((role) => role.id === option?.value);
+
+    if (role) {
+      const member = interaction.member!;
+      const memberId = member!.user.id;
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bot ${TOKEN}`,
+      };
+
+      if (member.roles.includes(role.id)) {
+        // Remove role
+        await fetch(
+          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
+          { method: "DELETE", headers },
+        );
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: { content: `「${role.name}」を取り外しました` },
+        };
+      } else {
+        // Add role
+        await fetch(
+          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
+          { method: "PUT", headers },
+        );
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: { content: `「${role.name}」を追加しました` },
+        };
+      }
+    }
+    return {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: { content: "その役職は追加/削除できません" },
+    };
+  }
+}
 
 // Sift is a small routing library that abstracts away details like starting a
 // listener on a port, and provides a simple function (serve) that has an API
@@ -46,54 +122,12 @@ async function home(request: Request) {
     );
   }
 
-  const { type = 0, data = { options: [] }, member = null } = JSON.parse(body);
-  // Discord performs Ping interactions to test our application.
-  // Type 1 in a request implies a Ping interaction.
-  if (type === 1) {
-    return json({
-      type: 1, // Type 1 in a response is a Pong interaction response type.
-    });
-  }
-
-  // Type 2 in a request is an ApplicationCommand interaction.
-  // It implies that a user has issued a command.
-  if (type === 2) {
-    const { value } = data.options.find((option) => option.name === "role");
-    const role = roles.find(role => role.id === value);
-    if (role) {
-      const memberId = member!.user.id;
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bot ${TOKEN}`,
-      };
-
-      if (member!.roles.includes(value)) {
-        // Remove role
-        await fetch(
-          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${value}`,
-          { method: "DELETE", headers },
-        );
-        return json({ type: 4, data: { content: `「${role.name}」を取り外しました` } });
-      } else {
-        // Add role
-        await fetch(
-          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${value}`,
-          { method: "PUT", headers },
-        );
-        return json({ type: 4, data: { content: `「${role.name}」を追加しました` } });
-      }
-    }
-    return json({
-      // Type 4 responds with the below message retaining the user's
-      // input at the top.
-      type: 4,
-      data: { content: "その役職は追加/削除できません" },
-    });
-  }
+  const interaction = JSON.parse(body);
+  const response = json(await interact(interaction));
 
   // We will return a bad request error as a valid Discord request
   // shouldn't reach here.
-  return json({ error: "bad request" }, { status: 400 });
+  return response ?? json({ error: "bad request" }, { status: 400 });
 }
 
 /** Verify whether the request is coming from Discord. */
