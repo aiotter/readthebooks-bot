@@ -8,6 +8,7 @@ import {
   APIPingInteraction,
   InteractionResponseType,
   InteractionType,
+  MessageFlags,
 } from "https://deno.land/x/discord_api_types@0.27.3/v9.ts";
 import config from "./bot-config.json" assert { type: "json" };
 import roles from "./roles.json" assert { type: "json" };
@@ -74,7 +75,7 @@ async function interact(
     }
     return {
       type: InteractionResponseType.ChannelMessageWithSource,
-      data: { content: "その役職は追加/削除できません" },
+      data: { content: "その役職は追加/削除できません", flags: MessageFlags.Ephemeral },
     };
   }
 }
