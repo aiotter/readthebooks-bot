@@ -11,4 +11,4 @@
 ## 実装メモ
 実行環境は Deno Deploy です。
 エンドポイントは `main.ts` です。
-Bot の token を TOKEN 環境変数に格納してください。
+Bot の token を BOT_TOKEN 環境変数に格納してください。
