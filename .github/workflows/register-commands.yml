@@ -2,14 +2,31 @@ name: Register commands
 
 on:
   push:
-    branches: [master, release]
+    branches: [master, development]
     paths:
       - register-commands.ts
       - .github/workflows/register-commands.yml
 
 jobs:
-  register-commmands:
+  production:
     runs-on: ubuntu-latest
+    if: github.ref_name == 'master'
+    environment: Production
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.19.x
+
+      - run: deno run --allow-env --allow-net register-commands.ts
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+
+  preview:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'development'
+    environment: Preview
     steps:
       - uses: actions/checkout@v2
 
