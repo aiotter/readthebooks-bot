@@ -62,7 +62,10 @@ async function interact(
         );
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
-          data: { content: `「${role.name}」を取り外しました` },
+          data: {
+            content: `「${role.name}」を取り外しました`,
+            flags: MessageFlags.Ephemeral,
+          },
         };
       } else {
         // Add role
@@ -72,13 +75,19 @@ async function interact(
         );
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
-          data: { content: `「${role.name}」を追加しました` },
+          data: {
+            content: `「${role.name}」を追加しました`,
+            flags: MessageFlags.Ephemeral,
+          },
         };
       }
     }
     return {
       type: InteractionResponseType.ChannelMessageWithSource,
-      data: { content: "その役職は追加/削除できません", flags: MessageFlags.Ephemeral },
+      data: {
+        content: "その役職は追加/削除できません",
+        flags: MessageFlags.Ephemeral,
+      },
     };
   }
 }
