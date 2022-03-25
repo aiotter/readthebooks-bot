@@ -157,7 +157,9 @@ async function handler(request: Request) {
   const interaction = JSON.parse(body);
   const responseData = await interact(interaction);
   if (responseData) {
-    return new Response(JSON.stringify(responseData));
+    return new Response(JSON.stringify(responseData), {
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+    });
   }
 
   // You won't reach here
