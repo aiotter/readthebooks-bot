@@ -11,7 +11,7 @@ import {
   InteractionType,
   MessageFlags,
 } from "https://deno.land/x/discord_api_types@0.27.3/v9.ts";
-import * as ed from "https://esm.sh/@noble/ed25519@1.6.0";
+import nacl from "https://esm.sh/tweetnacl@1.0.3";
 
 import config from "./bot-config.json" assert { type: "json" };
 import roles from "./roles.json" assert { type: "json" };
@@ -138,13 +138,11 @@ async function handler(request: Request) {
   //   ),
   // );
 
-  const isValid = await ed.verify(
-    hexToUint8Array(request.headers.get("X-Signature-Ed25519")!),
-    ed.utils.bytesToHex(
-      new TextEncoder().encode(
-        request.headers.get("X-Signature-Timestamp")! + body,
-      ),
+  const isValid = nacl.sign.detached.verify(
+    new TextEncoder().encode(
+      request.headers.get("X-Signature-Timestamp")! + body,
     ),
+    hexToUint8Array(request.headers.get("X-Signature-Ed25519")!),
     hexToUint8Array(config.publicKey),
   );
 
