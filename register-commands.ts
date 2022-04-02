@@ -1,7 +1,5 @@
-import config from "./bot-config.json" assert { type: "json" };
+import * as config from "./config.ts";
 import commands from "./commands.json" assert { type: "json" };
-
-const botToken = Deno.env.get("TOKEN")!;
 
 function registerCommand() {
   const error = new Error();
@@ -12,7 +10,7 @@ function registerCommand() {
       body: JSON.stringify(commands),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bot ${botToken}`,
+        Authorization: `Bot ${config.token}`,
       },
     },
   ).then(async (response) => {

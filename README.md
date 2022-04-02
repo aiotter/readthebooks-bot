@@ -4,11 +4,9 @@
 
 ## 使い方
 `/role` コマンドで自分に対して追加/削除したい役職を選択してください。
-[roles.json](./roles.json) に登録された役職のみ追加/削除ができます。
-
-操作できる役職を追加したい場合は roles.json に対して Pull Request を行なってください。
+Bot が権限的に追加/削除可能な役職のみ操作できます。
 
 ## 実装メモ
 実行環境は Deno Deploy です。
 エンドポイントは `main.ts` です。
-Bot の token を BOT_TOKEN 環境変数に格納してください。
+[.env.sample](./.env.sample) を参考に環境変数の設定を行ってください。

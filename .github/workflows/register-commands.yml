@@ -4,6 +4,7 @@ on:
   push:
     branches: [master, development]
     paths:
+      - commands.json
       - register-commands.ts
       - .github/workflows/register-commands.yml
 
@@ -19,8 +20,11 @@ jobs:
         with:
           deno-version: v1.19.x
 
-      - run: deno run --allow-env --allow-net register-commands.ts
+      - run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
         env:
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
           TOKEN: ${{ secrets.TOKEN }}
 
   preview:
@@ -34,6 +38,9 @@ jobs:
         with:
           deno-version: v1.19.x
 
-      - run: deno run --allow-env --allow-net register-commands.ts
+      - run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
         env:
+          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
           TOKEN: ${{ secrets.TOKEN }}
