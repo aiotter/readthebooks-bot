@@ -11,7 +11,7 @@ jobs:
       matrix:
         environment: [Production, Preview]
     runs-on: ubuntu-latest
-    environment: ${{ matrix.environments }}
+    environment: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v2
 
