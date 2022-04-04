@@ -1,0 +1,51 @@
+name: Create events
+
+on:
+  workflow_dispatch:
+    inputs:
+      cron:
+        description: Cron syntax to invoke the workflow
+        required: true
+        type: string
+  schedule:
+    - cron: '0 15 * * FRI'
+
+jobs:
+  create_event:
+    strategy:
+      matrix:
+        include:
+          - name: APUE 輪読会
+            start: next Friday 9 pm JST
+            end: next Friday 10 pm JST
+            location: "#apue（詳説unixプログラミング）"
+            on: '0 15 * * FRI'  # midnight of SAT (JST)
+    needs: [environment]
+    if: always()
+    runs-on: ubuntu-latest
+    environment: ${{ needs.environment.outputs.name }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create event
+        if: (github.event.schedule || github.event.inputs.cron) == matrix.on
+        uses: ./.github/actions/create-event
+        with:
+          token: ${{ secrets.TOKEN }}
+          guild-id: ${{ secrets.GUILD_ID }}
+          start: ${{ matrix.start }}
+          end: ${{ matrix.end }}
+          name: ${{ matrix.name }}
+          location: ${{ matrix.location }}
+
+  environment:
+    name: Detect environment
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.preview.outputs.name || steps.production.outputs.name }}
+    steps:
+      - id: preview
+        run: echo "::set-output name=name::Preview"
+        if: github.ref_name == 'master'
+      - id: production
+        run: echo "::set-output name=name::Production"
+        if: github.ref_name == 'release'

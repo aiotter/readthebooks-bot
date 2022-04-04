@@ -1,0 +1,57 @@
+name: Create event
+description: Create discord event
+inputs:
+  token:
+    description: Discord bot token
+    required: true
+  guild-id:
+    description: Where to create event (discord server ID)
+    required: true
+  channel-id:
+    description: Channel ID of the event
+    required: false
+  start:
+    description: When to start the event (to be interpreted by date -d)
+    required: true
+  end:
+    description: When to end the event
+    required: false
+  name:
+    description: Event name
+    required: true
+  description:
+    description: Event description
+    required: false
+    default: ""
+  entity-type:
+    description: 1 for STAGE_INSTANCE, 2 for VOICE, 3 for EXTERNAL(default)
+    required: false
+    default: "3"
+  location:
+    description: Location of the event
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - id: dates
+      shell: bash
+      run: |
+        echo "::set-output name=start::$(date +%Y-%m-%dT%H:%M:%S.%3N%:z -d '${{ inputs.start }}')"
+        echo "::set-output name=end::$(date +%Y-%m-%dT%H:%M:%S.%3N%:z -d '${{ inputs.end }}')"
+
+    - uses: fjogeleit/http-request-action@v1
+      with:
+        url: https://discord.com/api/v9/guilds/${{ inputs.guild-id }}/scheduled-events
+        method: POST
+        customHeaders: '{"Authorization": "Bot ${{ inputs.token }}"}'
+        data: |
+          {
+            "name": "${{ inputs.name }}",
+            "description": "${{ inputs.description }}",
+            "scheduled_start_time": "${{ steps.dates.outputs.start }}",
+            "scheduled_end_time": "${{ steps.dates.outputs.end }}",
+            ${{ inputs.location && format('"entity_metadata": {{ "location": "{0}" }},', inputs.location) }}
+            "entity_type": ${{ inputs.entity-type }},
+            "privacy_level": 2
+          }
