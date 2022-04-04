@@ -12,11 +12,12 @@ import {
   MessageFlags,
 } from "https://deno.land/x/discord_api_types@0.27.3/v9.ts";
 import nacl from "https://esm.sh/tweetnacl@1.0.3";
+import * as config from "./config.ts";
 
-import config from "./bot-config.json" assert { type: "json" };
-import roles from "./roles.json" assert { type: "json" };
-
-const botToken = Deno.env.get("TOKEN")!;
+const headers = {
+  "Content-Type": "application/json",
+  Authorization: `Bot ${config.token}`,
+};
 
 async function interact(
   interaction: APIPingInteraction,
@@ -44,51 +45,58 @@ async function interact(
         option.name === "role"
       ) as APIApplicationCommandInteractionDataRoleOption;
 
-    const role = roles.find((role) => role.id === option?.value);
+    const member = interaction.member!;
+    const memberId = member!.user.id;
+    const roleId = option.value;
+    const role = interaction.data.resolved!.roles![roleId]!;
 
-    if (role) {
-      const member = interaction.member!;
-      const memberId = member!.user.id;
-      const headers = {
-        "Content-Type": "application/json",
-        Authorization: `Bot ${botToken}`,
-      };
-
-      if (member.roles.includes(role.id)) {
-        // Remove role
-        await fetch(
-          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
-          { method: "DELETE", headers },
-        );
+    if (member.roles.includes(roleId)) {
+      // Remove role
+      const response = await fetch(
+        `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
+        { method: "DELETE", headers },
+      );
+      if (response.ok) {
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content: `「${role.name}」を取り外しました`,
+            content: `<@&${role.id}> を取り外しました`,
             flags: MessageFlags.Ephemeral,
           },
         };
       } else {
-        // Add role
-        await fetch(
-          `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
-          { method: "PUT", headers },
-        );
         return {
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
-            content: `「${role.name}」を追加しました`,
+            content: "その役職は取り外しできません",
+            flags: MessageFlags.Ephemeral,
+          },
+        };
+      }
+    } else {
+      // Add role
+      const response = await fetch(
+        `https://discord.com/api/v9/guilds/${config.guildId}/members/${memberId}/roles/${role.id}`,
+        { method: "PUT", headers },
+      );
+      if (response.ok) {
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: `<@&${role.id}> を追加しました`,
+            flags: MessageFlags.Ephemeral,
+          },
+        };
+      } else {
+        return {
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: "その役職は追加できません",
             flags: MessageFlags.Ephemeral,
           },
         };
       }
     }
-    return {
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: {
-        content: "その役職は追加/削除できません",
-        flags: MessageFlags.Ephemeral,
-      },
-    };
   }
 }
 
