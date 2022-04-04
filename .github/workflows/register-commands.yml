@@ -1,6 +1,7 @@
 name: Register commands
 
 on:
+  workflow_dispatch:
   push:
     branches: [master, development]
     paths:
@@ -10,39 +11,49 @@ on:
 
 jobs:
   production:
-    runs-on: ubuntu-latest
     if: github.ref_name == 'master'
     environment: Production
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.19.x
+        with: { deno-version: v1.19.x }
 
-      - run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
+      - name: Create .env
+        uses: iamsauravsharma/create-dotenv@v1.2.1
+        with:
+          env-prefix: "DOTENV_"
         env:
-          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          TOKEN: ${{ secrets.TOKEN }}
-          GUILD_ID: ${{ secrets.GUILD_ID }}
-          THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+          DOTENV_APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+          DOTENV_PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          DOTENV_TOKEN: ${{ secrets.TOKEN }}
+          DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
+          DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+
+      - name: Run register-commands.ts
+        run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
 
   preview:
-    runs-on: ubuntu-latest
     if: github.ref_name == 'development'
     environment: Preview
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.19.x
+        with: { deno-version: v1.19.x }
 
-      - run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
+      - name: Create .env
+        uses: iamsauravsharma/create-dotenv@v1.2.1
+        with:
+          env-prefix: "DOTENV_"
         env:
-          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          TOKEN: ${{ secrets.TOKEN }}
-          GUILD_ID: ${{ secrets.GUILD_ID }}
-          THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+          DOTENV_APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+          DOTENV_PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          DOTENV_TOKEN: ${{ secrets.TOKEN }}
+          DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
+          DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+
+      - name: Run register-commands.ts
+        run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
