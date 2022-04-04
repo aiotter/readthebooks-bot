@@ -3,7 +3,7 @@ name: Maintain threads
 on:
   workflow_dispatch:
   schedule:
-    - cron: "* */12 * * *"  # Every 12h
+    - cron: '0 */12 * * *'  # Every 12h
 
 jobs:
   maintain_threads:
