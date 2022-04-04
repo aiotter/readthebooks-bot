@@ -1,0 +1,22 @@
+name: Detect environment
+
+on:
+  workflow_call:
+    outputs:
+      name:
+        description: Name of the detected environment
+        value: ${{ jobs.environment.outputs.name }}
+
+jobs:
+  environment:
+    name: Detect environment
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.preview.outputs.name || steps.production.outputs.name }}
+    steps:
+      - id: preview
+        run: echo "::set-output name=name::Preview"
+        if: github.ref_name == 'master'
+      - id: production
+        run: echo "::set-output name=name::Production"
+        if: github.ref_name == 'release'

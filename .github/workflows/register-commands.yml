@@ -11,14 +11,15 @@ on:
 
 jobs:
   production:
-    if: github.ref_name == 'release'
-    environment: Production
+    needs: [environment]
+    environment: ${{ needs.environment.outputs.name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       - uses: denoland/setup-deno@v1
-        with: { deno-version: v1.19.x }
+        with: 
+          deno-version: v1.19.x
 
       - name: Create .env
         uses: iamsauravsharma/create-dotenv@v1.2.1
@@ -34,26 +35,5 @@ jobs:
       - name: Run register-commands.ts
         run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
 
-  preview:
-    if: github.ref_name == 'master'
-    environment: Preview
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: denoland/setup-deno@v1
-        with: { deno-version: v1.19.x }
-
-      - name: Create .env
-        uses: iamsauravsharma/create-dotenv@v1.2.1
-        with:
-          env-prefix: "DOTENV_"
-        env:
-          DOTENV_APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
-          DOTENV_PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          DOTENV_TOKEN: ${{ secrets.TOKEN }}
-          DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
-          DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
-
-      - name: Run register-commands.ts
-        run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
+  environment:
+    uses: ./.github/workflows/environment.yml
