@@ -28,7 +28,7 @@ jobs:
 
       - uses: denoland/deployctl@v1
         with:
-          project: readthebooks-bot${{ needs.environment.outputs.name != 'Production' && '-test' }}
+          project: readthebooks-bot${{ needs.environment.outputs.name != 'Production' && '-test' || ''}}
           entrypoint: main.ts
 
   environment:
