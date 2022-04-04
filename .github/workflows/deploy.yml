@@ -1,24 +1,19 @@
-name: Register commands
+name: Deploy to Deno Deploy
 
 on:
-  workflow_dispatch:
   push:
     branches: [master, development]
-    paths:
-      - commands.json
-      - register-commands.ts
-      - .github/workflows/register-commands.yml
 
 jobs:
   production:
     if: github.ref_name == 'master'
     environment: Production
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v2
-
-      - uses: denoland/setup-deno@v1
-        with: { deno-version: v1.19.x }
 
       - name: Create .env
         uses: iamsauravsharma/create-dotenv@v1.2.1
@@ -31,18 +26,20 @@ jobs:
           DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
           DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
 
-      - name: Run register-commands.ts
-        run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
+      - uses: denoland/deployctl@v1
+        with:
+          project: readthebooks-bot
+          entrypoint: main.ts
 
   preview:
     if: github.ref_name == 'development'
     environment: Preview
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v2
-
-      - uses: denoland/setup-deno@v1
-        with: { deno-version: v1.19.x }
 
       - name: Create .env
         uses: iamsauravsharma/create-dotenv@v1.2.1
@@ -55,5 +52,7 @@ jobs:
           DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
           DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
 
-      - name: Run register-commands.ts
-        run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
+      - uses: denoland/deployctl@v1
+        with:
+          project: readthebooks-bot-test
+          entrypoint: main.ts

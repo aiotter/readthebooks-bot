@@ -9,7 +9,7 @@ jobs:
   maintain_threads:
     strategy:
       matrix:
-        environments: [Production, Preview]
+        environment: [Production, Preview]
     runs-on: ubuntu-latest
     environment: ${{ matrix.environments }}
     steps:
@@ -19,10 +19,16 @@ jobs:
         with:
           deno-version: v1.19.x
 
-      - run: deno run --allow-env --allow-net --allow-read=. maintain-threads.ts
+      - name: Create .env
+        uses: iamsauravsharma/create-dotenv@v1.2.1
+        with:
+          env-prefix: "DOTENV_"
         env:
-          APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
-          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
-          TOKEN: ${{ secrets.TOKEN }}
-          GUILD_ID: ${{ secrets.GUILD_ID }}
-          THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+          DOTENV_APPLICATION_ID: ${{ secrets.APPLICATION_ID }}
+          DOTENV_PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          DOTENV_TOKEN: ${{ secrets.TOKEN }}
+          DOTENV_GUILD_ID: ${{ secrets.GUILD_ID }}
+          DOTENV_THREADS_CATEGORY: ${{ secrets.THREADS_CATEGORY }}
+
+      - name: Run maintain-threads.ts
+        run: deno run --allow-env --allow-net --allow-read=. maintain-threads.ts
