@@ -10,6 +10,7 @@ jobs:
     strategy:
       matrix:
         environment: [Production, Preview]
+      max-parallel: 1
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     steps:
