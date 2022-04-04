@@ -21,7 +21,6 @@ jobs:
             location: "#apue（詳説unixプログラミング）"
             on: '0 15 * * FRI'  # midnight of SAT (JST)
     needs: [environment]
-    if: always()
     runs-on: ubuntu-latest
     environment: ${{ needs.environment.outputs.name }}
     steps:
@@ -38,14 +37,4 @@ jobs:
           location: ${{ matrix.location }}
 
   environment:
-    name: Detect environment
-    runs-on: ubuntu-latest
-    outputs:
-      name: ${{ steps.preview.outputs.name || steps.production.outputs.name }}
-    steps:
-      - id: preview
-        run: echo "::set-output name=name::Preview"
-        if: github.ref_name == 'master'
-      - id: production
-        run: echo "::set-output name=name::Production"
-        if: github.ref_name == 'release'
+    uses: ./.github/workflows/environment.yml
