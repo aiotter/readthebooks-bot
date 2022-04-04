@@ -2,11 +2,11 @@ name: Deploy to Deno Deploy
 
 on:
   push:
-    branches: [master, development]
+    branches: [master, release]
 
 jobs:
   production:
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'release'
     environment: Production
     runs-on: ubuntu-latest
     permissions:
@@ -32,7 +32,7 @@ jobs:
           entrypoint: main.ts
 
   preview:
-    if: github.ref_name == 'development'
+    if: github.ref_name == 'master'
     environment: Preview
     runs-on: ubuntu-latest
     permissions:

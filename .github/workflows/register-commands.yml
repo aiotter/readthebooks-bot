@@ -3,7 +3,7 @@ name: Register commands
 on:
   workflow_dispatch:
   push:
-    branches: [master, development]
+    branches: [master, release]
     paths:
       - commands.json
       - register-commands.ts
@@ -11,7 +11,7 @@ on:
 
 jobs:
   production:
-    if: github.ref_name == 'master'
+    if: github.ref_name == 'release'
     environment: Production
     runs-on: ubuntu-latest
     steps:
@@ -35,7 +35,7 @@ jobs:
         run: deno run --allow-env --allow-net --allow-read=. register-commands.ts
 
   preview:
-    if: github.ref_name == 'development'
+    if: github.ref_name == 'master'
     environment: Preview
     runs-on: ubuntu-latest
     steps:
