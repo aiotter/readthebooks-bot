@@ -31,6 +31,11 @@ inputs:
     description: Location of the event
     required: false
 
+outputs:
+  response:
+    description: Response
+    value: ${{ steps.request.outputs.response }}
+  
 runs:
   using: composite
   steps:
@@ -41,6 +46,7 @@ runs:
         echo "::set-output name=end::$(date +%Y-%m-%dT%H:%M:%S.%3N%:z -d '${{ inputs.end }}')"
 
     - uses: fjogeleit/http-request-action@v1
+      id: request
       with:
         url: https://discord.com/api/v9/guilds/${{ inputs.guild-id }}/scheduled-events
         method: POST

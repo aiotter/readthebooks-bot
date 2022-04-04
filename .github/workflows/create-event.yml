@@ -20,12 +20,15 @@ jobs:
             end: next Friday 10 pm JST
             location: "#apue（詳説unixプログラミング）"
             on: '0 15 * * FRI'  # midnight of SAT (JST)
+            announce-to: "709792681089302808"
     needs: [environment]
     runs-on: ubuntu-latest
     environment: ${{ needs.environment.outputs.name }}
     steps:
       - uses: actions/checkout@v3
+
       - name: Create event
+        id: create_event
         if: (github.event.schedule || github.event.inputs.cron) == matrix.on
         uses: ./.github/actions/create-event
         with:
@@ -35,6 +38,21 @@ jobs:
           end: ${{ matrix.end }}
           name: ${{ matrix.name }}
           location: ${{ matrix.location }}
+
+      - name: Announce the event creation
+        uses: fjogeleit/http-request-action@v1
+        if: matrix.announce-to
+        with:
+          url: https://discord.com/api/v9/channels/${{ env.channel-id }}/messages
+          method: POST
+          customHeaders: '{"Authorization": "Bot ${{ secrets.TOKEN }}"}'
+          data: |
+            {
+              "content": "次回のイベント: https://discord.gg/U3ADkMG?event=${{ fromJson(steps.create_event.outputs.response).id }}"
+            }
+        env:
+          channel-id: ${{ needs.environment.outputs.name != 'Production' && '960551335453950042' || matrix.announce-to }}
+
 
   environment:
     uses: ./.github/workflows/environment.yml
