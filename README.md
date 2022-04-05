@@ -12,7 +12,7 @@ THREADS_CATEGORY 環境変数で指定されたカテゴリ内の全チャンネ
 ただし約 2 週間書き込みがないものはアーカイブされます。
 
 ### イベントの自動作成
-[create-event.yml](./github/workflows/create-event.yml) の `jobs.create_event.strategy.matrix.include` を編集することで、定期的にイベントを自動作成できます。
+[create-event.yml](./.github/workflows/create-event.yml) の `jobs.create_event.strategy.matrix.include` を編集することで、定期的にイベントを自動作成できます。
 
 * **name**: イベントの名前
 * **start**: 開始時刻 (date -d で解釈可能である必要があります)
@@ -21,7 +21,7 @@ THREADS_CATEGORY 環境変数で指定されたカテゴリ内の全チャンネ
 * **on**: イベント作成のタイミング (cron の書式)。 `on.schedule` にも同じ書式を指定してください。
 * **announce-to**: イベント作成後に通知を投稿するテキストチャンネルの ID
 
-イベントの自動作成を行いたい場合は `create-event.yml` に PR を行ってください。
+イベントの自動作成を行いたい場合は [create-event.yml](./.github/workflows/create-event.yml) に PR を行ってください。
 
 ## 実装メモ
 実行環境は Deno Deploy です。
