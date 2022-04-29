@@ -7,10 +7,6 @@
 `/role` コマンドで自分に対して追加/削除したい役職を選択してください。
 Bot が権限的に追加/削除可能な役職のみ操作できます。
 
-### スレッドの維持
-THREADS_CATEGORY 環境変数で指定されたカテゴリ内の全チャンネルに対して、スレッドのアーカイブを防ぎます。
-ただし約 2 週間書き込みがないものはアーカイブされます。
-
 ### イベントの自動作成
 [create-event.yml](./.github/workflows/create-event.yml) の `jobs.create_event.strategy.matrix.include` を編集することで、定期的にイベントを自動作成できます。
 
